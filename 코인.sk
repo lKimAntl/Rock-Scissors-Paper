@@ -1,0 +1,212 @@
+options:
+	bK: &6[ &f은행 &6]&f
+	sK: &a[ &f시스템 &a]&f
+	
+on join:
+	if {coins::%uuid of player%} is not set:
+		set {coins::%uuid of player%} to 0
+	
+command /코인 [<text>] [<offlineplayer>] [<integer>]:
+	trigger:
+		if arg 1 is not set:
+			message ""
+			message "{@bK} &f/코인 확인 - 자신이 가지고 있는 코인를 확인합니다."
+			message "{@bK} &f/코인 보내기 [닉네임] [금액] - 자신의 코인를 상대방에게 보냅니다."
+			message "" 
+			if player is op:
+				message "{@bK} &f/코인 입금 [닉네임] [금액] - [&f닉네임]의 코인를 추가합니다."
+				message "{@bK} &f/코인 출금 [닉네임] [금액] - [&f닉네임]의 코인를 차감합니다."
+				message "{@bK} &f/코인 설정 [닉네임] [금액] - [&f닉네임]의 코인를 설정합니다."
+				message ""
+				message "{@bK} &f위 명령어 3개는 오피전용 명령어입니다!"
+				message ""
+				stop
+			stop
+			
+		if arg 1 is "확인":
+			message ""
+			message "{@bK} &f당신이 가지고 있는 코인은 &6%Com({coins::%uuid of player%})%&f코인 입니다."
+			message ""
+			stop
+			
+		if arg 1 is "보내기":
+			if arg 2 is set:	
+				if arg 3 is set:
+					if arg 2 is not player:
+						if arg 2 is not offline:
+							if arg 3 <= {coins::%uuid of player%}:
+								if arg 3 > 0:
+									add arg 3 to {coins::%uuid of arg-2%}
+									remove arg 3 from {coins::%uuid of player%}
+									message ""
+									message "{@bK} &f당신은 %arg-2%에게 &6%Com(arg-3)%&f코인를 보내셨습니다."
+									message ""
+									message "" to arg-2
+									message "{@bK} &f당신은 %player%에게 &6%Com(arg-3)%&f코인를 받으셨습니다." to arg-2
+									message "" to arg-2
+									stop
+									
+								else:
+									message ""
+									message "{@bK} &c코인은 &60&f코인 이하로 보내실 수 없습니다."
+									message ""
+									stop
+									
+							else:
+								message ""
+								message "{@bK} &c당신의 코인보다 적은 양은 보내실 수 없습니다."
+								message ""
+								stop
+								
+						else:
+							message ""
+							message "{@bK} &c잘못된 형식의 플레이어입니다."
+							message ""
+							stop
+								
+					else:
+						message ""
+						message "{@bK} &c자신에게는 코인를 보낼 수 없습니다."
+						message ""
+						stop
+					
+				else:
+					message ""
+					message "{@bK} &f/코인 보내기 [닉네임] [금액] - 자신의 코인를 상대방에게 보냅니다."
+					message ""
+					stop
+					
+			else:
+				message ""
+				message "{@bK} &f/코인 보내기 [닉네임] [금액] - 자신의 코인를 상대방에게 보냅니다."
+				message ""
+				stop
+				
+		if arg 1 is "입금":
+			if player is op:
+				if arg 2 is set:
+					if arg 3 is set:
+						if arg 2 is not offline:
+							add arg 3 to {coins::%uuid of arg-2%}
+							message ""
+							message "{@bK} &f당신은 %arg-2%에게 &6%Com(arg-3)%&f코인를 주셨습니다."
+							message ""
+							stop
+							
+						else:
+							message ""
+							message "{@bK} &c잘못된 형식의 플레이어입니다."
+							message ""
+							stop
+
+					else:
+						message ""
+						message "{@bK} &f/코인 입금 [닉네임] [금액] - [닉네임]의 코인를 추가합니다."
+						message ""
+						stop
+								
+				else:
+					message ""
+					message "{@bK} &f/코인 입금 [닉네임] [금액] - [닉네임]의 코인를 추가합니다."
+					message ""
+					stop
+							
+			else:
+				message ""
+				message "{@sK} &c당신은 권한이 없습니다."
+				message ""
+				stop
+						
+		if arg 1 is "출금":
+			if player is op:
+				if arg 2 is set:
+					if arg 3 is set:
+						if arg 2 is not offline:
+							remove arg 3 from {coins::%uuid of arg-2%}
+							message ""
+							message "{@bK} &f당신은 %arg-2%에게 &6%Com(arg-3)%&f코인를 빼셨습니다."
+							message ""
+							stop
+									
+						else:
+							message ""
+							message "{@bK} &c잘못된 형식의 플레이어입니다."
+							message ""
+							stop
+
+					else:
+						message ""
+						message "{@bK} &f/코인 출금 [닉네임] [금액] - [닉네임]의 코인를 차감합니다."
+						message ""
+						stop
+							
+				else:
+					message ""
+					message "{@bK} &f/코인 출금 [닉네임] [금액] - [닉네임]의 코인를 차감합니다."
+					message ""
+					stop
+					
+			else:
+				message ""
+				message "{@sK} &c당신은 권한이 없습니다."
+				message ""
+				stop
+					
+		if arg 1 is "설정":
+			if player is op:
+				if arg 2 is set:
+					if arg 3 is set:
+						if arg 2 is not offline:
+							set {coins::%uuid of arg-2%} to arg 3
+							message ""
+							message "{@bK} &f당신은 %arg-2%의 코인를 &6%Com(arg-3)%&f코인으로 설정하셨습니다."
+							message ""
+							stop
+								
+						else:
+							message ""
+							message "{@bK} &c잘못된 형식의 플레이어입니다."
+							message ""
+							stop
+								
+					else:
+						message ""
+						message "{@bK} &f/코인 설정 [닉네임] [금액] - [닉네임]의 코인를 설정합니다."
+						message ""
+						stop
+							
+				else:
+					message ""
+					message "{@bK} &f/코인 설정 [닉네임] [금액] - [닉네임]의 코인를 설정합니다."
+					message ""
+					stop
+					
+			else:
+				message ""
+				message "{@sK} &c당신은 권한이 없습니다."
+				message ""
+				stop
+					
+function Com(n:number) :: text:
+	set {_i} to "%{_n}%"
+	if length of {_i} <= 3:
+		set {_t} to {_i}
+	else:
+		set {_s::*} to {_i} split at ""
+		set {_l} to length of {_i}
+		set {_n} to ceil({_l}/3) 
+			
+		loop {_n} times:
+			loop 3 times:
+				if {_t} is not set:
+					set {_t} to "%{_s::%{_l}%}%"
+				else:
+					if {_s::%{_l}%} is set:
+						set {_t} to "%{_s::%{_l}%}%%{_t}%"
+					
+				subtract 1 from {_l}
+				
+			if loop-value < {_n}:
+				set {_t} to ",%{_t}%"
+			
+	return {_t}

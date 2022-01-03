@@ -1,0 +1,385 @@
+options:
+	c:of current inventory
+
+on rightclick on player:
+	if {가위바위보.%targeted player%} is not set:
+		set {target.%player%} to targeted player
+		set {target.%targeted player%} to player
+		set {가위바위보.%player%} to true
+		set {가위바위보.%targeted player%} to true
+		set {ING.%player%} to true
+		set {ING.%targeted player%} to true
+		default_GUI(player, {target.%player%})
+	else:
+		send "&c상대가 이미 가위바위보 중입니다!" to player
+
+on inventory click:
+	if iname contains "&8가위바위보":
+		cancel event
+		if click raw slot is 32 or 33 or 34:
+			if click item's type is gray dye:
+				if nbt of clicked item contains "CustomModelData":
+					if slot 20 of player's current inventory is air:
+						set slot 20 {@c} of player to click item
+						set {item.%player%} to click item
+						set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of player to lime stained glass pane named " "
+						play sound "entity.experience_orb.pickup" to player
+						stop
+		if click raw slot is 20:
+			if slot click raw slot of player's current inventory is not air:
+				if click item's type is gray dye:
+					if nbt of clicked item contains "CustomModelData":
+						remove click item from player's current inventory
+						set name of slot 14 {@c} of player to "&7[ 준비 ] : &f%player%"
+						set slot 16 {@c} of {target.%player%} to player's skull named "&7[ 준비 ] : &f%player%"
+						delete {preparation.%player%}
+						set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of player to red stained glass pane named " "
+						play sound "entity.enderman.teleport" with volume 1 to player
+						wait 0.5 seconds
+						set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of player to White stained glass pane named " "
+						stop
+		if click raw slot is 15:
+			if click type is right mouse button:
+				if {coins.%player%} + 10 <= {coins::%uuid of player%}:
+					add 10 to {coins.%player%}
+					subtract 10 from {coins::%uuid of player%}
+					play sound "block.note_block.pling" to player
+					set slot 15 {@c} of player to {coins.%player%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%player%}%"
+				else:
+					send "&c자신의 소지금 보다 더 많은 코인은 낼 수 없습니다!" to player
+					stop
+			else if click type is left mouse button:
+				if {coins.%player%} - 10 > 0:
+					subtract 10 from {coins.%player%}
+					add 10 to {coins::%uuid of player%}
+					play sound "block.note_block.pling" to player
+					set slot 15 {@c} of player to {coins.%player%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%player%}%"
+				else:
+					send "&c10 이상의 코인을 걸어야 합니다!" to player
+					play sound "entity.enderman.teleport" with volume 1 to player
+					stop
+			else if click type is right mouse button with shift:
+				if {coins.%player%} + 10 <= {coins::%uuid of player%}:
+					add 100 to {coins.%player%}
+					subtract 100 from {coins::%uuid of player%}
+					play sound "block.note_block.pling" to player
+					set slot 15 {@c} of player to {coins.%player%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%player%}%"
+				else:
+					send "&c자신의 소지금 보다 더 많은 코인은 낼 수 없습니다!" to player
+					stop
+			else if click type is left mouse button with shift:
+				if {coins.%player%} - 10 > 0:
+					subtract 100 from {coins.%player%}
+					add 100 to {coins::%uuid of player%}
+					play sound "block.note_block.pling" to player
+					set slot 15 {@c} of player to {coins.%player%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%player%}%"
+				else:
+					send "&c10 이상의 코인을 걸어야 합니다!" to player
+					play sound "entity.enderman.teleport" with volume 1 to player
+					stop
+		if click raw slot is 14:
+			if slot 20 {@c} of player is not air:
+				if slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of player is lime stained glass pane named " ":
+					if {item.%player%} is set: #가위바위보 아이템이 설정됐을경우
+						if {coins.%player%} > 0: #코인을 설정했을경우
+							if {preparation.%player%} is not set:
+								play sound "entity.experience_orb.pickup" to player
+								set {preparation.%player%} to true
+								set name of slot 14 {@c} of player to "&e[ 준비 ] : &f%player%"
+								set slot 16 {@c} of {target.%player%} to player's skull named "&e[ 준비 ] : &f%player%"
+								if {preparation.%player%} is set:
+									if {preparation.%{target.%player%}%} is set:
+										if nbt of {item.%player%} contains "CustomModelData:1":
+											if nbt of {item.%{target.%player%}%} contains "CustomModelData:1":
+												Result_DeadHeat_GUI(player, {target.%player%})
+												message(player, "&c무승부!", {target.%player%}, "&c무승부!")
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+											else if nbt of {item.%{target.%player%}%} contains "CustomModelData:2":
+												Victory_1P_GUI(player, {target.%player%})
+												
+												add ({coins.%player%}+{coins.%{target.%player%}%}) to {coins::%uuid of player%}
+												message(player, "&f+%({coins.%{target.%player%}%}+{coins.%player%})% 🪙", {target.%player%}, "&f-%{coins.%{target.%player%}%}% 🪙")
+												
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+											else if nbt of {item.%{target.%player%}%} contains "CustomModelData:3":
+												Victory_2P_GUI(player, {target.%player%})
+												
+												add ({coins.%player%}+{coins.%{target.%player%}%}) to {coins::%uuid of {target.%player%}%}
+												message(player, "&f-%{coins.%player%}% 🪙", {target.%player%}, "&f+%({coins.%{target.%player%}%}+{coins.%player%})% 🪙")
+												
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+										else if nbt of {item.%player%} contains "CustomModelData:2":
+											if nbt of {item.%{target.%player%}%} contains "CustomModelData:1":
+												Victory_2P_GUI(player, {target.%player%})
+												
+												add ({coins.%player%}+{coins.%{target.%player%}%}) to {coins::%uuid of {target.%player%}%}
+												message(player, "&f-%{coins.%player%}% 🪙", {target.%player%}, "&f+%({coins.%{target.%player%}%}+{coins.%player%})% 🪙")
+												
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+											else if nbt of {item.%{target.%player%}%} contains "CustomModelData:2":
+												Result_DeadHeat_GUI(player, {target.%player%})
+												message(player, "&c무승부!", {target.%player%}, "&c무승부!")
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+											else if nbt of {item.%{target.%player%}%} contains "CustomModelData:3":
+												Victory_1P_GUI(player, {target.%player%})
+												
+												add ({coins.%player%}+{coins.%{target.%player%}%}) to {coins::%uuid of player%}
+												message(player, "&f+%({coins.%{target.%player%}%}+{coins.%player%})% 🪙", {target.%player%}, "&f-%{coins.%{target.%player%}%}% 🪙")
+												
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+										else if nbt of {item.%player%} contains "CustomModelData:3":
+											if nbt of {item.%{target.%player%}%} contains "CustomModelData:1":
+												Victory_1P_GUI(player, {target.%player%})
+												
+												add ({coins.%player%}+{coins.%{target.%player%}%}) to {coins::%uuid of player%}
+												message(player, "&f+%({coins.%{target.%player%}%}+{coins.%player%})% 🪙", {target.%player%}, "&f-%{coins.%{target.%player%}%}% 🪙")
+												
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+											else if nbt of {item.%{target.%player%}%} contains "CustomModelData:2":
+												Victory_2P_GUI(player, {target.%player%})
+												
+												add ({coins.%player%}+{coins.%{target.%player%}%}) to {coins::%uuid of {target.%player%}%}
+												message(player, "&f-%{coins.%player%}% 🪙", {target.%player%}, "&f+%({coins.%{target.%player%}%}+{coins.%player%})% 🪙")
+												
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+											else if nbt of {item.%{target.%player%}%} contains "CustomModelData:3":
+												Result_DeadHeat_GUI(player, {target.%player%})
+												message(player, "&c무승부!", {target.%player%}, "&c무승부!")
+												delete {ING.%player%}
+												delete {ING.%{target.%player%}%}
+												play sound "ENTITY_PLAYER_LEVELUP" to player
+												play sound "ENTITY_PLAYER_LEVELUP" to {target.%player%}
+												wait 2 seconds
+												close player's inventory
+												close {target.%player%}'s inventory
+												initialization(player, {target.%player%})
+												stop
+							else:
+								send "&c코인을 배팅해주세요!"
+								play sound "entity.enderman.teleport" with volume 1 to player
+				else:
+					send "&c가위바위보를 선택해 주세요!"
+					play sound "entity.enderman.teleport" with volume 1 to player
+							
+on inventory close:
+	if icname contains "&8가위바위보":
+		set {_u} to {target.%player%}
+		if {preparation.%player%} is set:
+			if {preparation.%{_u}%} is set:
+				stop
+		set {_u} to {target.%player%}
+		message "&c가위바위보가 취소됐습니다!" to player
+		message "&c가위바위보가 취소됐습니다!" to {_u}
+		play sound "entity.enderman.teleport" with volume 1 to player
+		play sound "entity.enderman.teleport" with volume 1 to {_u}
+		delete {target.%player%}
+		delete {target.%{_u}%}
+		delete {가위바위보.%player%}
+		delete {가위바위보.%{_u}%}
+		delete {ING.%player%}
+		delete {ING.%{_u}%}
+		set {coins.%player%} to 0
+		set {coins.%{_u}%} to 0
+		delete {item.%player%}
+		delete {item.%{_u}%}
+		delete {preparation.%player%}
+		delete {preparation.%{_u}%}
+		wait 0.1 second
+		close {_u}'s inventory
+		close player's inventory
+		
+
+function message(1p:player, 1t:text, 2p:player, 2t:text):
+	message "%{_1t}%" to {_1p}
+	message "%{_2t}%" to {_2p}
+	
+function initialization(1p:player, 2p:player):
+	delete {target.%{_1p}%}
+	delete {target.%{_2p}%}
+	delete {가위바위보.%{_1p}%}
+	delete {가위바위보.%{_2p}%}
+	delete {ING.%{_1p}%}
+	delete {ING.%{_2p}%}
+	set {coins.%{_1p}%} to 0
+	set {coins.%{_2p}%} to 0
+	delete {item.%{_1p}%}
+	delete {item.%{_2p}%}
+	delete {preparation.%{_1p}%}
+	delete {preparation.%{_2p}%}
+	wait 0.1 second
+	close {_2p}'s inventory
+	
+function default_GUI(1p:player, 2p:player):
+	open chest with 5 rows named "&8가위바위보" to {_1p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_1p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_1p} to White stained glass pane named " "
+	set slot 20 {@c} of {_1p} to air
+	set slot 14 {@c} of {_1p} to {_1p}'s skull named "&7[ 준비 ] : &f%{_1p}%"
+	set slot 15 {@c} of {_1p} to gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_1p}%}%"
+	set slot 16 {@c} of {_1p} to {_2p}'s skull named "&7[ 준비 ] : &f%{_2p}%"
+	set slot 32 {@c} of {_1p} to gray dye with nbt "{CustomModelData:1}" named "바위(✊)"
+	set slot 33 {@c} of {_1p} to gray dye with nbt "{CustomModelData:2}" named "가위(✌)"
+	set slot 34 {@c} of {_1p} to gray dye with nbt "{CustomModelData:3}" named "보(🖐)"
+	open chest with 5 rows named "&8가위바위보" to {_2p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_2p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_2p} to White stained glass pane named " "
+	set slot 20 {@c} of {_2p} to air
+	set slot 14 {@c} of {_2p} to {_2p}'s skull named "&7[ 준비 ] : &f%{_2p}%"
+	set slot 15 {@c} of {_2p} to gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_2p}%}%"
+	set slot 16 {@c} of {_2p} to {_1p}'s skull named "&7[ 준비 ] : &f%{_1p}%"
+	set slot 32 {@c} of {_2p} to gray dye with nbt "{CustomModelData:1}" named "바위(✊)"
+	set slot 33 {@c} of {_2p} to gray dye with nbt "{CustomModelData:2}" named "가위(✌)"
+	set slot 34 {@c} of {_2p} to gray dye with nbt "{CustomModelData:3}" named "보(🖐)"
+	
+function Result_DeadHeat_GUI(1p:player, 2p:player): #무승부
+	open chest with 5 rows named "&8가위바위보" to {_1p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_1p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_1p} to red stained glass pane named " "
+	set slot 14 and 15 and 16 and 23 and 25 and 32 and 33 and 34 {@c} of {_1p} to red stained glass pane named " "
+	set slot 24 {@c} of {_1p} to {item.%{_2p}%}
+	set slot 20 {@c} of {_1p} to {item.%{_1p}%}
+	set slot 2 {@c} of {_1p} to {_1p}'s skull named "&f%{_1p}%"
+	set slot 6 {@c} of {_1p} to {_2p}'s skull named "&f%{_2p}%"
+	set slot 4 {@c} of {_1p} to {coins.%{_1p}%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_1p}%}%"
+	open chest with 5 rows named "&8가위바위보" to {_2p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_2p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_2p} to red stained glass pane named " "
+	set slot 14 and 15 and 16 and 23 and 25 and 32 and 33 and 34 {@c} of {_2p} to red stained glass pane named " "
+	set slot 24 {@c} of {_2p} to {item.%{_1p}%}
+	set slot 20 {@c} of {_2p} to {item.%{_2p}%}
+	set slot 2 {@c} of {_2p} to {_2p}'s skull named "&f%{_2p}%"
+	set slot 6 {@c} of {_2p} to {_1p}'s skull named "&f%{_1p}%"
+	set slot 4 {@c} of {_2p} to {coins.%{_2p}%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_2p}%}%"
+	
+function Victory_1P_GUI(1p:player, 2p:player): #1P 승!
+	open chest with 5 rows named "&8가위바위보" to {_1p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_1p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_1p} to lime stained glass pane named " "
+	set slot 14 and 15 and 16 and 23 and 25 and 32 and 33 and 34 {@c} of {_1p} to red stained glass pane named " "
+	set slot 24 {@c} of {_1p} to {item.%{_2p}%}
+	set slot 20 {@c} of {_1p} to {item.%{_1p}%}
+	set slot 2 {@c} of {_1p} to {_1p}'s skull named "&f%{_1p}%"
+	set slot 6 {@c} of {_1p} to {_2p}'s skull named "&f%{_2p}%"
+	set slot 4 {@c} of {_1p} to {coins.%{_1p}%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_1p}%}%"
+	open chest with 5 rows named "&8가위바위보" to {_2p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_2p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_2p} to red stained glass pane named " "
+	set slot 14 and 15 and 16 and 23 and 25 and 32 and 33 and 34 {@c} of {_2p} to lime stained glass pane named " "
+	set slot 24 {@c} of {_2p} to {item.%{_1p}%}
+	set slot 20 {@c} of {_2p} to {item.%{_2p}%}
+	set slot 2 {@c} of {_2p} to {_2p}'s skull named "&f%{_2p}%"
+	set slot 6 {@c} of {_2p} to {_1p}'s skull named "&f%{_1p}%"
+	set slot 4 {@c} of {_2p} to {coins.%{_1p}%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_1p}%}%"
+	
+function Victory_2P_GUI(1p:player, 2p:player): #2P 승!
+	open chest with 5 rows named "&8가위바위보" to {_1p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_1p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_1p} to red stained glass pane named " "
+	set slot 14 and 15 and 16 and 23 and 25 and 32 and 33 and 34 {@c} of {_1p} to lime stained glass pane named " "
+	set slot 24 {@c} of {_1p} to {item.%{_2p}%}
+	set slot 20 {@c} of {_1p} to {item.%{_1p}%}
+	set slot 2 {@c} of {_1p} to {_1p}'s skull named "&f%{_1p}%"
+	set slot 6 {@c} of {_1p} to {_2p}'s skull named "&f%{_2p}%"
+	set slot 4 {@c} of {_1p} to {coins.%{_2p}%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_2p}%}%"
+	open chest with 5 rows named "&8가위바위보" to {_2p}
+	set {_a} to 0
+	loop 45 times:
+		set slot {_a} {@c} of {_2p} to light blue stained glass pane named " "
+		add 1 to {_a}
+	set slot 10 and 11 and 12 and 19 and 21 and 28 and 29 and 30 {@c} of {_2p} to lime stained glass pane named " "
+	set slot 14 and 15 and 16 and 23 and 25 and 32 and 33 and 34 {@c} of {_2p} to red stained glass pane named " "
+	set slot 24 {@c} of {_2p} to {item.%{_1p}%}
+	set slot 20 {@c} of {_2p} to {item.%{_2p}%}
+	set slot 2 {@c} of {_2p} to {_2p}'s skull named "&f%{_2p}%"
+	set slot 6 {@c} of {_2p} to {_1p}'s skull named "&f%{_1p}%"
+	set slot 4 {@c} of {_2p} to {coins.%{_2p}%} of gold nugget with nbt "{CustomModelData:1}" named "&e코인" with lore "&f%{coins.%{_2p}%}%"
+	
+	
+every 1 seconds:
+	loop all players:
+		send action bar "&f%{coins::%uuid of loop-player%}% 🪙" to loop-player
